@@ -141,6 +141,26 @@ public class UCSBOrganizationControllerTests extends ControllerTestCase {
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
+
+        @WithMockUser(roles = { "USER" })
+        @Test
+        public void test_that_logged_in_user_can_get_by_id_when_the_id_does_not_exist() throws Exception {
+
+                // arrange
+
+                when(ucsbOrganizationRepository.findById(eq("test"))).thenReturn(Optional.empty());
+
+                // act
+                MvcResult response = mockMvc.perform(get("/api/UCSBOrganization?orgCode=test"))
+                                .andExpect(status().isNotFound()).andReturn();
+
+                // assert
+
+                verify(ucsbOrganizationRepository, times(1)).findById(eq("test"));
+                Map<String, Object> json = responseToJson(response);
+                assertEquals("EntityNotFoundException", json.get("type"));
+                assertEquals("UCSBOrganization with id test not found", json.get("message"));
+        }
         
 
         @WithMockUser(roles = { "ADMIN", "USER" })
