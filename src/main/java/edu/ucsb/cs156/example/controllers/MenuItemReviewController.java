@@ -27,7 +27,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @Api(description = "MenuItemReview")
-@RequestMapping("/api/menuitemreview")
+@RequestMapping("/api/MenuItemReview")
 @RestController
 @Slf4j
 public class MenuItemReviewController extends ApiController {
@@ -43,7 +43,7 @@ public class MenuItemReviewController extends ApiController {
         return itemReviews;
     }
 
-    /*@ApiOperation(value = "Get a single menu item review")
+    @ApiOperation(value = "Get a single menu item review")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("")
     public MenuItemReview getById(
@@ -52,7 +52,7 @@ public class MenuItemReviewController extends ApiController {
                 .orElseThrow(() -> new EntityNotFoundException(MenuItemReview.class, id));
 
         return menuItemReview;
-    }*/
+    }
 
     @ApiOperation(value = "Create a new menu item review")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -81,5 +81,36 @@ public class MenuItemReviewController extends ApiController {
 
         return savedMenuItemReview;
     }
+
+    /*@ApiOperation(value = "Delete a UCSBDate")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("")
+    public Object deleteUCSBDate(
+            @ApiParam("id") @RequestParam Long id) {
+        UCSBDate ucsbDate = ucsbDateRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(UCSBDate.class, id));
+
+        ucsbDateRepository.delete(ucsbDate);
+        return genericMessage("UCSBDate with id %s deleted".formatted(id));
+    }
+
+    @ApiOperation(value = "Update a single date")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("")
+    public UCSBDate updateUCSBDate(
+            @ApiParam("id") @RequestParam Long id,
+            @RequestBody @Valid UCSBDate incoming) {
+
+        UCSBDate ucsbDate = ucsbDateRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(UCSBDate.class, id));
+
+        ucsbDate.setQuarterYYYYQ(incoming.getQuarterYYYYQ());
+        ucsbDate.setName(incoming.getName());
+        ucsbDate.setLocalDateTime(incoming.getLocalDateTime());
+
+        ucsbDateRepository.save(ucsbDate);
+
+        return ucsbDate;
+    }*/
 
 }
