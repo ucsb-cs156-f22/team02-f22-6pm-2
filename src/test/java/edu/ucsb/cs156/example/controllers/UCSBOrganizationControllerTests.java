@@ -52,8 +52,14 @@ public class UCSBOrganizationControllerTests extends ControllerTestCase {
                 mockMvc.perform(get("/api/UCSBOrganization/all"))
                                 .andExpect(status().is(200)); // logged
         }
-
-        // Authorization tests for /api/ucsborganization/post
+        
+        @Test
+        public void logged_out_users_cannot_get_by_id() throws Exception {
+                mockMvc.perform(get("/api/UCSBOrganization?orgCode=testCode1"))
+                                .andExpect(status().is(403)); // logged out users can't get by id
+        }
+        
+        // Authorization tests for /api/UCSBOrganization/post
         // (Perhaps should also have these for put and delete)
         @Test
         public void logged_out_users_cannot_post() throws Exception {
@@ -106,6 +112,36 @@ public class UCSBOrganizationControllerTests extends ControllerTestCase {
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
+
+        // // Tests with mocks for database actions
+        
+        @WithMockUser(roles = { "USER" })
+        @Test
+        public void test_that_logged_in_user_can_get_by_id_when_the_id_exists() throws Exception {
+
+                // arrange
+                boolean testInactive1 = true;
+
+                UCSBOrganization ucsbOrganization = UCSBOrganization.builder()
+                            .orgCode("testCode1")
+                            .orgTranslation("testTranslation1")
+                            .orgTranslationShort("testTransShort1")
+                            .inactive(testInactive1)
+                            .build();
+
+                when(ucsbOrganizationRepository.findById(eq("testCode1"))).thenReturn(Optional.of(ucsbOrganization));
+
+                // act
+                MvcResult response = mockMvc.perform(get("/api/UCSBOrganization?orgCode=testCode1"))
+                                .andExpect(status().isOk()).andReturn();
+
+                // assert
+                verify(ucsbOrganizationRepository, times(1)).findById(eq("testCode1"));
+                String expectedJson = mapper.writeValueAsString(ucsbOrganization);
+                String responseString = response.getResponse().getContentAsString();
+                assertEquals(expectedJson, responseString);
+        }
+        
 
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
