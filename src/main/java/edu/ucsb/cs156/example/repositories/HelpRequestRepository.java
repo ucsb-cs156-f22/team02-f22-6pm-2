@@ -4,6 +4,6 @@ import edu.ucsb.cs156.example.entities.HelpRequest;
 import org.springframework.data.repository.CrudRepository;
 
 @Repository
-public interface HelpRequestRepository extends CrudRepository<HelpRequest, String> {
+public interface HelpRequestRepository extends CrudRepository<HelpRequest, Long> {
  
 }
