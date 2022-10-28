@@ -95,4 +95,5 @@ public class HelpRequestController extends ApiController {
         helpRequestRepository.delete(helpRequest);
         return genericMessage("HelpRequest with id %s deleted".formatted(id));
     }
+    
 }
