@@ -10,11 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,5 +92,25 @@ public class UCSBOrganizationController extends ApiController {
 
         ucsbOrganizationRepository.delete(commons);
         return genericMessage("UCSBOrganization with id %s deleted".formatted(orgCode));
+    }
+
+    //Functionality to edit entry in table
+    @ApiOperation(value = "Update a single organization")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("")
+    public UCSBOrganization updateCommons(
+            @ApiParam("orgCode") @RequestParam String orgCode,
+            @RequestBody @Valid UCSBOrganization incoming) {
+
+        UCSBOrganization orgs = ucsbOrganizationRepository.findById(orgCode)
+                .orElseThrow(() -> new EntityNotFoundException(UCSBOrganization.class, orgCode));
+
+        orgs.setOrgTranslationShort(incoming.getOrgTranslationShort());
+        orgs.setOrgTranslation(incoming.getOrgTranslation());
+        orgs.setInactive(incoming.getInactive());
+
+        ucsbOrganizationRepository.save(orgs);
+
+        return orgs;
     }
 }

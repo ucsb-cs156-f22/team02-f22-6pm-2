@@ -241,4 +241,78 @@ public class UCSBOrganizationControllerTests extends ControllerTestCase {
                 Map<String, Object> json = responseToJson(response);
                 assertEquals("UCSBOrganization with id testCode not found", json.get("message"));
         }
+
+        @WithMockUser(roles = { "ADMIN", "USER" })
+        @Test
+        public void admin_can_edit_an_existing_commons() throws Exception {
+
+                // arrange
+                boolean testInactive1 = true;
+                UCSBOrganization ucsbOrganizationOrig = UCSBOrganization.builder()
+                                .orgCode("testCode1")
+                                .orgTranslation("testTranslation1")
+                                .orgTranslationShort("testTransShort1")
+                                .inactive(testInactive1)
+                                .build();
+
+                boolean testInactive2 = false;
+                UCSBOrganization ucsbOrganizationEdited = UCSBOrganization.builder()
+                                .orgCode("testCode1")
+                                .orgTranslation("testTranslation2")
+                                .orgTranslationShort("testTransShort2")
+                                .inactive(testInactive2)
+                                .build();
+
+                String requestBody = mapper.writeValueAsString(ucsbOrganizationEdited);
+
+                when(ucsbOrganizationRepository.findById(eq("testCode1"))).thenReturn(Optional.of(ucsbOrganizationOrig));
+
+                // act
+                MvcResult response = mockMvc.perform(
+                                put("/api/UCSBOrganization?orgCode=testCode1")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .characterEncoding("utf-8")
+                                                .content(requestBody)
+                                                .with(csrf()))
+                                .andExpect(status().isOk()).andReturn();
+
+                // assert
+                verify(ucsbOrganizationRepository, times(1)).findById("testCode1");
+                verify(ucsbOrganizationRepository, times(1)).save(ucsbOrganizationEdited); // should be saved with updated info
+                String responseString = response.getResponse().getContentAsString();
+                assertEquals(requestBody, responseString);
+        }
+
+        @WithMockUser(roles = { "ADMIN", "USER" })
+        @Test
+        public void admin_cannot_edit_commons_that_does_not_exist() throws Exception {
+                // arrange
+
+                boolean testInactive2 = false;
+                UCSBOrganization ucsbOrganizationEdited = UCSBOrganization.builder()
+                                .orgCode("testCode1")
+                                .orgTranslation("testTranslation2")
+                                .orgTranslationShort("testTransShort2")
+                                .inactive(testInactive2)
+                                .build();
+
+                String requestBody = mapper.writeValueAsString(ucsbOrganizationEdited);
+
+                when(ucsbOrganizationRepository.findById(eq("testCode1"))).thenReturn(Optional.empty());
+
+                // act
+                MvcResult response = mockMvc.perform(
+                                put("/api/UCSBOrganization?orgCode=testCode1")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .characterEncoding("utf-8")
+                                                .content(requestBody)
+                                                .with(csrf()))
+                                .andExpect(status().isNotFound()).andReturn();
+
+                // assert
+                verify(ucsbOrganizationRepository, times(1)).findById("testCode1");
+                Map<String, Object> json = responseToJson(response);
+                assertEquals("UCSBOrganization with id testCode1 not found", json.get("message"));
+
+        }
 }
