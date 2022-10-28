@@ -69,7 +69,7 @@ public class UCSBDiningCommonsMenuItemController extends ApiController {
 
         return savedCommonsMenuItem;
     }
-    // // / / // / / / / / / / / / / / // /// // // //// // 
+    
     // @ApiOperation(value = "Delete a UCSBDiningCommons")
     // @PreAuthorize("hasRole('ROLE_ADMIN')")
     // @DeleteMapping("")
@@ -82,26 +82,22 @@ public class UCSBDiningCommonsMenuItemController extends ApiController {
     //     return genericMessage("UCSBDiningCommons with id %s deleted".formatted(code));
     // }
 
-    // @ApiOperation(value = "Update a single commons")
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
-    // @PutMapping("")
-    // public UCSBDiningCommons updateCommons(
-    //         @ApiParam("code") @RequestParam String code,
-    //         @RequestBody @Valid UCSBDiningCommons incoming) {
+    @ApiOperation(value = "Update a single menu item")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("")
+    public UCSBDiningCommonsMenuItem updateCommonsMenuItem(
+            @ApiParam("id") @RequestParam Long id,
+            @RequestBody @Valid UCSBDiningCommonsMenuItem incoming) {
 
-    //     UCSBDiningCommons commons = ucsbDiningCommonsRepository.findById(code)
-    //             .orElseThrow(() -> new EntityNotFoundException(UCSBDiningCommons.class, code));
+        UCSBDiningCommonsMenuItem menuItem = ucsbDiningCommonsMenuItemRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(UCSBDiningCommonsMenuItem.class, id));
 
+        menuItem.setDiningCommonsCode(incoming.getDiningCommonsCode());  
+        menuItem.setName(incoming.getName());
+        menuItem.setStation(incoming.getStation());
 
-    //     commons.setName(incoming.getName());  
-    //     commons.setHasSackMeal(incoming.getHasSackMeal());
-    //     commons.setHasTakeOutMeal(incoming.getHasTakeOutMeal());
-    //     commons.setHasDiningCam(incoming.getHasDiningCam());
-    //     commons.setLatitude(incoming.getLatitude());
-    //     commons.setLongitude(incoming.getLongitude());
+        ucsbDiningCommonsMenuItemRepository.save(menuItem);
 
-    //     ucsbDiningCommonsRepository.save(commons);
-
-    //     return commons;
-    // }
+        return menuItem;
+    }
 }
