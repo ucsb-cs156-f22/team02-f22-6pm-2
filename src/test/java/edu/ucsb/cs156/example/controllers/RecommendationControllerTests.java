@@ -36,13 +36,12 @@ import static org.mockito.Mockito.when;
 @Import(TestConfig.class)
 public class RecommendationControllerTests extends ControllerTestCase{
 
-    @MockBean
+        @MockBean
         RecommendationRepository recommendationRepository;
 
         @MockBean
         UserRepository userRepository;
 
-        // Authorization tests for /api/ucsbdiningcommons/admin/all
 
         @Test
         public void logged_out_users_cannot_get_all() throws Exception {
@@ -192,14 +191,14 @@ public class RecommendationControllerTests extends ControllerTestCase{
                                 .explanation("BS/MS program")
                                 .dateRequested(dr1)
                                 .dateNeeded(dn1)
-                                .done(false)
+                                .done(true)
                                 .build();
 
                 when(recommendationRepository.save(eq(recommendation1))).thenReturn(recommendation1);
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                post("/api/Recommendation/post?requesterEmail=cgaucho@ucsb.edu&professorEmail=phtcon@ucsb.edu&explanation=BS/MS program&dateRequested=2022-04-20T00:00:00&dateNeeded=2022-05-01T00:00:00&done=false")
+                                post("/api/Recommendation/post?requesterEmail=cgaucho@ucsb.edu&professorEmail=phtcon@ucsb.edu&explanation=BS/MS program&dateRequested=2022-04-20T00:00:00&dateNeeded=2022-05-01T00:00:00&done=true")
                                                 .with(csrf()))
                                 .andExpect(status().isOk()).andReturn();
 
@@ -290,7 +289,7 @@ public class RecommendationControllerTests extends ControllerTestCase{
                                 .explanation("PhD CS Stanford")
                                 .dateRequested(dr2)
                                 .dateNeeded(dn2)
-                                .done(false)
+                                .done(true)
                                 .build();
                 String requestBody = mapper.writeValueAsString(recommendationEdited);
 
