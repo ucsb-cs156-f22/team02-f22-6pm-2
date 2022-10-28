@@ -94,24 +94,26 @@ public class MenuItemReviewController extends ApiController {
         return genericMessage("MenuItemReview with id %s deleted".formatted(id));
     }
 
-    /*
-    @ApiOperation(value = "Update a single date")
+    
+    @ApiOperation(value = "Update a single menu item review")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("")
-    public UCSBDate updateUCSBDate(
+    public MenuItemReview updateMenuItemReview(
             @ApiParam("id") @RequestParam Long id,
-            @RequestBody @Valid UCSBDate incoming) {
+            @RequestBody @Valid MenuItemReview incoming) {
 
-        UCSBDate ucsbDate = ucsbDateRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(UCSBDate.class, id));
+        MenuItemReview menuItemReview = menuItemReviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(MenuItemReview.class, id));
 
-        ucsbDate.setQuarterYYYYQ(incoming.getQuarterYYYYQ());
-        ucsbDate.setName(incoming.getName());
-        ucsbDate.setLocalDateTime(incoming.getLocalDateTime());
+        menuItemReview.setItemId(incoming.getItemId());
+        menuItemReview.setReviewerEmail(incoming.getReviewerEmail());
+        menuItemReview.setStars(incoming.getStars());
+        menuItemReview.setDateReviewed(incoming.getDateReviewed());
+        menuItemReview.setComments(incoming.getComments());
 
-        ucsbDateRepository.save(ucsbDate);
+        menuItemReviewRepository.save(menuItemReview);
 
-        return ucsbDate;
-    }*/
+        return menuItemReview;
+    }
 
 }
