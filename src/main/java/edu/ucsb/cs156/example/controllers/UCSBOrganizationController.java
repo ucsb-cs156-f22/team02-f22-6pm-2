@@ -65,6 +65,7 @@ public class UCSBOrganizationController extends ApiController {
         return savedUcsbOrganization;
     }
 
+    //Functionality to retrieve a single entry with a code. 
     @ApiOperation(value = "Get a single organization")
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("")
@@ -76,6 +77,7 @@ public class UCSBOrganizationController extends ApiController {
         return ucsbOrganization;
     }
 
+    //Functionality to delete an entry in the table
     @ApiOperation(value = "Delete a UCSBOrganization")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("")
