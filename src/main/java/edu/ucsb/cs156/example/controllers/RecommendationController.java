@@ -60,8 +60,8 @@ public class RecommendationController extends ApiController{
         @ApiParam("requesterEmail") @RequestParam String requesterEmail,
         @ApiParam("professorEmail") @RequestParam String professorEmail,
         @ApiParam("explanation") @RequestParam String explanation,
-        @ApiParam("dateRequested") @RequestParam("localDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateRequested,
-        @ApiParam("dateNeeded") @RequestParam("localDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateNeeded,
+        @ApiParam("dateRequested") @RequestParam("dateRequested") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateRequested,
+        @ApiParam("dateNeeded") @RequestParam("dateNeeded") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateNeeded,
         @ApiParam("done") @RequestParam boolean done
         )
             throws JsonProcessingException {
