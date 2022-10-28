@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,5 +74,17 @@ public class UCSBOrganizationController extends ApiController {
                 .orElseThrow(() -> new EntityNotFoundException(UCSBOrganization.class, orgCode));
 
         return ucsbOrganization;
+    }
+
+    @ApiOperation(value = "Delete a UCSBOrganization")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("")
+    public Object deleteCommons(
+            @ApiParam("orgCode") @RequestParam String orgCode) {
+        UCSBOrganization commons = ucsbOrganizationRepository.findById(orgCode)
+                .orElseThrow(() -> new EntityNotFoundException(UCSBOrganization.class, orgCode));
+
+        ucsbOrganizationRepository.delete(commons);
+        return genericMessage("UCSBOrganization with id %s deleted".formatted(orgCode));
     }
 }
