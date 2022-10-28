@@ -256,9 +256,10 @@ public class ArticleControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void admin_can_edit_an_existing_article() throws Exception {
-                // arrange
+                 // arrange
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-04-20T00:00:00");
-
+                LocalDateTime ldt2 = LocalDateTime.parse("2022-04-19T00:00:00");
+ 
                 Article articleOrig = Article.builder()
                                 .title("Using testing-playground with React Testing Library")
                                 .url("https://dev.to/katieraby/using-testing-playground-with-react-testing-library-26j7")
@@ -266,21 +267,20 @@ public class ArticleControllerTests extends ControllerTestCase {
                                 .email("phtcon@ucsb.edu")
                                 .dateAdded(ldt1)
                                 .build();
-
-                LocalDateTime ldt2 = LocalDateTime.parse("2022-04-19T00:00:00");
-
+ 
+ 
                 Article articleEdited = Article.builder()
                                 .title("Handy Spring Utility Classes")
                                 .url("https://twitter.com/maciejwalkowiak/status/1511736828369719300?t=gGXpmBH4y4eY9OBSUInZEg&s=09")
                                 .explanation("A lot of really useful classes are built into Spring")
-                                .email("phtcon@ucsb.edu")
+                                .email("avishekde@ucsb.edu")
                                 .dateAdded(ldt2)
                                 .build();
-
+ 
                 String requestBody = mapper.writeValueAsString(articleEdited);
-
+ 
                 when(articleRepository.findById(eq(1L))).thenReturn(Optional.of(articleOrig));
-
+ 
                 // act
                 MvcResult response = mockMvc.perform(
                                 put("/api/Article?id=1")
@@ -289,7 +289,7 @@ public class ArticleControllerTests extends ControllerTestCase {
                                                 .content(requestBody)
                                                 .with(csrf()))
                                 .andExpect(status().isOk()).andReturn();
-
+ 
                 // assert
                 verify(articleRepository, times(1)).findById(1L);
                 verify(articleRepository, times(1)).save(articleEdited); // should be saved with correct user
