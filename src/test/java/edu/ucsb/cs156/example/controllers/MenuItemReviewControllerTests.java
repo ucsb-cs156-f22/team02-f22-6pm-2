@@ -3,8 +3,8 @@ package edu.ucsb.cs156.example.controllers;
 import edu.ucsb.cs156.example.repositories.UserRepository;
 import edu.ucsb.cs156.example.testconfig.TestConfig;
 import edu.ucsb.cs156.example.ControllerTestCase;
-import edu.ucsb.cs156.example.entities.HelpRequest;
-import edu.ucsb.cs156.example.repositories.HelpRequestRepository;
+import edu.ucsb.cs156.example.entities.MenuItemReview;
+import edu.ucsb.cs156.example.repositories.MenuItemReviewRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,53 +32,55 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest(controllers = HelpRequestController.class)
+@WebMvcTest(controllers = MenuItemReviewController.class)
 @Import(TestConfig.class)
-public class HelpRequestControllerTests extends ControllerTestCase {
-    @MockBean
-        HelpRequestRepository helpRequestRepository;
+public class MenuItemReviewControllerTests extends ControllerTestCase {
+
+        @MockBean
+        MenuItemReviewRepository menuItemReviewRepository;
 
         @MockBean
         UserRepository userRepository;
 
-        // Authorization tests for /api/helprequest/admin/all
+        // Authorization tests for /api/ucsbdates/admin/all
 
         @Test
         public void logged_out_users_cannot_get_all() throws Exception {
-                mockMvc.perform(get("/api/helprequest/all"))
+                mockMvc.perform(get("/api/MenuItemReview/all"))
                                 .andExpect(status().is(403)); // logged out users can't get all
         }
 
         @WithMockUser(roles = { "USER" })
         @Test
         public void logged_in_users_can_get_all() throws Exception {
-                mockMvc.perform(get("/api/helprequest/all"))
+                mockMvc.perform(get("/api/MenuItemReview/all"))
                                 .andExpect(status().is(200)); // logged
         }
 
         @Test
         public void logged_out_users_cannot_get_by_id() throws Exception {
-                mockMvc.perform(get("/api/helprequest?id=7"))
+                mockMvc.perform(get("/api/MenuItemReview?id=123"))
                                 .andExpect(status().is(403)); // logged out users can't get by id
         }
 
-        // Authorization tests for /api/helprequest/post
+        // Authorization tests for /api/ucsbdates/post
         // (Perhaps should also have these for put and delete)
 
         @Test
         public void logged_out_users_cannot_post() throws Exception {
-                mockMvc.perform(post("/api/helprequest/post"))
+                mockMvc.perform(post("/api/MenuItemReview/post"))
                                 .andExpect(status().is(403));
         }
 
         @WithMockUser(roles = { "USER" })
         @Test
         public void logged_in_regular_users_cannot_post() throws Exception {
-                mockMvc.perform(post("/api/helprequest/post"))
+                mockMvc.perform(post("/api/MenuItemReview/post"))
                                 .andExpect(status().is(403)); // only admins can post
         }
 
         // // Tests with mocks for database actions
+
         @WithMockUser(roles = { "USER" })
         @Test
         public void test_that_logged_in_user_can_get_by_id_when_the_id_exists() throws Exception {
@@ -86,25 +88,24 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                 // arrange
                 LocalDateTime ldt = LocalDateTime.parse("2022-01-03T00:00:00");
 
-                HelpRequest helpRequest = HelpRequest.builder()
-                                .requesterEmail("3321@ucsb.edu")
-                                .teamId("6pm-2")
-                                .tableOrBreakoutRoom("table 5")
-                                .requestTime(ldt)
-                                .explanation("Need help with blahblah")
-                                .solved(false)
+                MenuItemReview menuItemReview = MenuItemReview.builder()
+                                .itemId(123)
+                                .reviewerEmail("cgaucho@ucsb.edu")
+                                .stars(3)
+                                .dateReviewed(ldt)
+                                .comments("Decent, nothing good or bad")
                                 .build();
 
-                when(helpRequestRepository.findById(eq(7L))).thenReturn(Optional.of(helpRequest));
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.of(menuItemReview));
 
                 // act
-                MvcResult response = mockMvc.perform(get("/api/helprequest?id=7"))
+                MvcResult response = mockMvc.perform(get("/api/MenuItemReview?id=123"))
                                 .andExpect(status().isOk()).andReturn();
 
                 // assert
 
-                verify(helpRequestRepository, times(1)).findById(eq(7L));
-                String expectedJson = mapper.writeValueAsString(helpRequest);
+                verify(menuItemReviewRepository, times(1)).findById(eq(123L));
+                String expectedJson = mapper.writeValueAsString(menuItemReview);
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
@@ -115,95 +116,91 @@ public class HelpRequestControllerTests extends ControllerTestCase {
 
                 // arrange
 
-                when(helpRequestRepository.findById(eq(7L))).thenReturn(Optional.empty());
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.empty());
 
                 // act
-                MvcResult response = mockMvc.perform(get("/api/helprequest?id=7"))
+                MvcResult response = mockMvc.perform(get("/api/MenuItemReview?id=123"))
                                 .andExpect(status().isNotFound()).andReturn();
 
                 // assert
 
-                verify(helpRequestRepository, times(1)).findById(eq(7L));
+                verify(menuItemReviewRepository, times(1)).findById(eq(123L));
                 Map<String, Object> json = responseToJson(response);
                 assertEquals("EntityNotFoundException", json.get("type"));
-                assertEquals("HelpRequest with id 7 not found", json.get("message"));
+                assertEquals("MenuItemReview with id 123 not found", json.get("message"));
         }
 
         @WithMockUser(roles = { "USER" })
         @Test
-        public void logged_in_user_can_get_all_ucsbdates() throws Exception {
+        public void logged_in_user_can_get_all_menuitemreviews() throws Exception {
 
                 // arrange
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
 
-                HelpRequest helpRequest1 = HelpRequest.builder()
-                                .requesterEmail("3321@ucsb.edu")
-                                .teamId("6pm-2")
-                                .tableOrBreakoutRoom("table 5")
-                                .requestTime(ldt1)
-                                .explanation("Need help with blahblah")
-                                .solved(false)
+                MenuItemReview menuItemReview1 = MenuItemReview.builder()
+                                .itemId(123)
+                                .reviewerEmail("cgaucho@ucsb.edu")
+                                .stars(3)
+                                .dateReviewed(ldt1)
+                                .comments("Decent, nothing good or bad")
                                 .build();
 
                 LocalDateTime ldt2 = LocalDateTime.parse("2022-03-11T00:00:00");
 
-                HelpRequest helpRequest2 = HelpRequest.builder()
-                                .requesterEmail("abaaba@ucsb.edu")
-                                .teamId("5pm-4")
-                                .tableOrBreakoutRoom("table 7")
-                                .requestTime(ldt2)
-                                .explanation("Need help with blahblah")
-                                .solved(false)
+                MenuItemReview menuItemReview2 = MenuItemReview.builder()
+                                .itemId(321)
+                                .reviewerEmail("cvanstralen@ucsb.edu")
+                                .stars(1)
+                                .dateReviewed(ldt2)
+                                .comments("Wouldn't recommend to my worst enemies")
                                 .build();
 
-                ArrayList<HelpRequest> expectedRequests = new ArrayList<>();
-                expectedRequests.addAll(Arrays.asList(helpRequest1, helpRequest2));
+                ArrayList<MenuItemReview> expectedDates = new ArrayList<>();
+                expectedDates.addAll(Arrays.asList(menuItemReview1, menuItemReview2));
 
-                when(helpRequestRepository.findAll()).thenReturn(expectedRequests);
+                when(menuItemReviewRepository.findAll()).thenReturn(expectedDates);
 
                 // act
-                MvcResult response = mockMvc.perform(get("/api/helprequest/all"))
+                MvcResult response = mockMvc.perform(get("/api/MenuItemReview/all"))
                                 .andExpect(status().isOk()).andReturn();
 
                 // assert
 
-                verify(helpRequestRepository, times(1)).findAll();
-                String expectedJson = mapper.writeValueAsString(expectedRequests);
+                verify(menuItemReviewRepository, times(1)).findAll();
+                String expectedJson = mapper.writeValueAsString(expectedDates);
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
 
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
-        public void an_admin_user_can_post_a_new_ucsbdate() throws Exception {
+        public void an_admin_user_can_post_a_new_menuitemreview() throws Exception {
                 // arrange
 
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
 
-                HelpRequest helpRequest1 = HelpRequest.builder()
-                                .requesterEmail("abaaba@ucsb.edu")
-                                .teamId("5pm4")
-                                .tableOrBreakoutRoom("table7")
-                                .requestTime(ldt1)
-                                .explanation("hahah")
-                                .solved(false)
+                MenuItemReview menuItemReview1 = MenuItemReview.builder()
+                                .itemId(456)
+                                .reviewerEmail("djones@ucsb.edu")
+                                .stars(2)
+                                .dateReviewed(ldt1)
+                                .comments("Meh, could've been worse")
                                 .build();
 
-                when(helpRequestRepository.save(eq(helpRequest1))).thenReturn(helpRequest1);
+                when(menuItemReviewRepository.save(eq(menuItemReview1))).thenReturn(menuItemReview1);
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                post("/api/helprequest/post?requesterEmail=abaaba@ucsb.edu&teamId=5pm4&tableOrBreakoutRoom=table7&requestTime=2022-01-03T00:00:00&explanation=hahah&solved=false")
+                                post("/api/MenuItemReview/post?itemId=456&reviewerEmail=djones@ucsb.edu&stars=2&dateReviewed=2022-01-03T00:00:00&comments=Meh, could've been worse")
                                                 .with(csrf()))
                                 .andExpect(status().isOk()).andReturn();
 
                 // assert
-                verify(helpRequestRepository, times(1)).save(helpRequest1);
-                String expectedJson = mapper.writeValueAsString(helpRequest1);
+                verify(menuItemReviewRepository, times(1)).save(menuItemReview1);
+                String expectedJson = mapper.writeValueAsString(menuItemReview1);
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
-
 
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
@@ -212,29 +209,28 @@ public class HelpRequestControllerTests extends ControllerTestCase {
 
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
 
-                HelpRequest helpRequest1 = HelpRequest.builder()
-                                .requesterEmail("abaaba@ucsb.edu")
-                                .teamId("5pm4")
-                                .tableOrBreakoutRoom("table7")
-                                .requestTime(ldt1)
-                                .explanation("hahah")
-                                .solved(false)
+                MenuItemReview menuItemReview1 = MenuItemReview.builder()
+                                .itemId(14)
+                                .reviewerEmail("cgaucho@ucsb.edu")
+                                .stars(3)
+                                .dateReviewed(ldt1)
+                                .comments("Decent, nothing good or bad")
                                 .build();
 
-                when(helpRequestRepository.findById(eq(15L))).thenReturn(Optional.of(helpRequest1));
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.of(menuItemReview1));
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                delete("/api/helprequest?id=15")
+                                delete("/api/MenuItemReview?id=123")
                                                 .with(csrf()))
                                 .andExpect(status().isOk()).andReturn();
 
                 // assert
-                verify(helpRequestRepository, times(1)).findById(15L);
-                verify(helpRequestRepository, times(1)).delete(any());
+                verify(menuItemReviewRepository, times(1)).findById(123L);
+                verify(menuItemReviewRepository, times(1)).delete(any());
 
                 Map<String, Object> json = responseToJson(response);
-                assertEquals("HelpRequest with id 15 deleted", json.get("message"));
+                assertEquals("MenuItemReview with id 123 deleted", json.get("message"));
         }
 
         @WithMockUser(roles = { "ADMIN", "USER" })
@@ -243,18 +239,18 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                         throws Exception {
                 // arrange
 
-                when(helpRequestRepository.findById(eq(15L))).thenReturn(Optional.empty());
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.empty());
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                delete("/api/helprequest?id=15")
+                                delete("/api/MenuItemReview?id=123")
                                                 .with(csrf()))
                                 .andExpect(status().isNotFound()).andReturn();
 
                 // assert
-                verify(helpRequestRepository, times(1)).findById(15L);
+                verify(menuItemReviewRepository, times(1)).findById(123L);
                 Map<String, Object> json = responseToJson(response);
-                assertEquals("HelpRequest with id 15 not found", json.get("message"));
+                assertEquals("MenuItemReview with id 123 not found", json.get("message"));
         }
 
         @WithMockUser(roles = { "ADMIN", "USER" })
@@ -265,31 +261,29 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
                 LocalDateTime ldt2 = LocalDateTime.parse("2023-01-03T00:00:00");
 
-                HelpRequest helpRequestOrig = HelpRequest.builder()
-                                .requesterEmail("abaaba@ucsb.edu")
-                                .teamId("5pm4")
-                                .tableOrBreakoutRoom("table7")
-                                .requestTime(ldt1)
-                                .explanation("hahah")
-                                .solved(false)
+                MenuItemReview menuItemReviewOrig = MenuItemReview.builder()
+                                .itemId(14)
+                                .reviewerEmail("cgaucho@ucsb.edu")
+                                .stars(3)
+                                .dateReviewed(ldt1)
+                                .comments("Decent, nothing good or bad")
                                 .build();
 
-                HelpRequest helpRequestEdited = HelpRequest.builder()
-                                .requesterEmail("abccba@ucsb.edu")
-                                .teamId("7pm2")
-                                .tableOrBreakoutRoom("table3")
-                                .requestTime(ldt2)
-                                .explanation("hahadfdf")
-                                .solved(false)
+                MenuItemReview menuItemReviewEdited = MenuItemReview.builder()
+                                .itemId(17)
+                                .reviewerEmail("davidgaucho@ucsb.edu")
+                                .stars(5)
+                                .dateReviewed(ldt2)
+                                .comments("Awesome")
                                 .build();
 
-                String requestBody = mapper.writeValueAsString(helpRequestEdited);
+                String requestBody = mapper.writeValueAsString(menuItemReviewEdited);
 
-                when(helpRequestRepository.findById(eq(67L))).thenReturn(Optional.of(helpRequestOrig));
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.of(menuItemReviewOrig));
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                put("/api/helprequest?id=67")
+                                put("/api/MenuItemReview?id=123")
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .characterEncoding("utf-8")
                                                 .content(requestBody)
@@ -297,8 +291,8 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                                 .andExpect(status().isOk()).andReturn();
 
                 // assert
-                verify(helpRequestRepository, times(1)).findById(67L);
-                verify(helpRequestRepository, times(1)).save(helpRequestEdited); // should be saved with correct user
+                verify(menuItemReviewRepository, times(1)).findById(123L);
+                verify(menuItemReviewRepository, times(1)).save(menuItemReviewEdited); // should be saved with correct user
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(requestBody, responseString);
         }
@@ -310,22 +304,21 @@ public class HelpRequestControllerTests extends ControllerTestCase {
 
                 LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
 
-                HelpRequest helpRequestEdited = HelpRequest.builder()
-                                .requesterEmail("abccba@ucsb.edu")
-                                .teamId("7pm2")
-                                .tableOrBreakoutRoom("table3")
-                                .requestTime(ldt1)
-                                .explanation("hahadfdf")
-                                .solved(false)
+                MenuItemReview menuItemReviewEdited = MenuItemReview.builder()
+                                .itemId(14)
+                                .reviewerEmail("cgaucho@ucsb.edu")
+                                .stars(3)
+                                .dateReviewed(ldt1)
+                                .comments("Decent, nothing good or bad")
                                 .build();
 
-                String requestBody = mapper.writeValueAsString(helpRequestEdited);
+                String requestBody = mapper.writeValueAsString(menuItemReviewEdited);
 
-                when(helpRequestRepository.findById(eq(67L))).thenReturn(Optional.empty());
+                when(menuItemReviewRepository.findById(eq(123L))).thenReturn(Optional.empty());
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                put("/api/helprequest?id=67")
+                                put("/api/MenuItemReview?id=123")
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .characterEncoding("utf-8")
                                                 .content(requestBody)
@@ -333,10 +326,9 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                                 .andExpect(status().isNotFound()).andReturn();
 
                 // assert
-                verify(helpRequestRepository, times(1)).findById(67L);
+                verify(menuItemReviewRepository, times(1)).findById(123L);
                 Map<String, Object> json = responseToJson(response);
-                assertEquals("HelpRequest with id 67 not found", json.get("message"));
+                assertEquals("MenuItemReview with id 123 not found", json.get("message"));
 
         }
-
 }

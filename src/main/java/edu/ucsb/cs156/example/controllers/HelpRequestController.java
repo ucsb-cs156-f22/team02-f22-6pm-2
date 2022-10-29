@@ -84,6 +84,7 @@ public class HelpRequestController extends ApiController {
         return savedHelpRequest;
     }
 
+
     @ApiOperation(value = "Delete a Help Request")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("")
