@@ -109,6 +109,37 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                 assertEquals(expectedJson, responseString);
         }
 
+        // // Tests with mocks for database actions
+        @WithMockUser(roles = { "USER" })
+        @Test
+        public void test_that_logged_in_user_can_get_by_id_when_the_id_exists2() throws Exception {
+
+                // arrange
+                LocalDateTime ldt = LocalDateTime.parse("2022-01-03T00:00:00");
+
+                HelpRequest helpRequest = HelpRequest.builder()
+                                .requesterEmail("3321@ucsb.edu")
+                                .teamId("6pm-2")
+                                .tableOrBreakoutRoom("table 5")
+                                .requestTime(ldt)
+                                .explanation("Need help with blahblah")
+                                .solved(true)
+                                .build();
+
+                when(helpRequestRepository.findById(eq(7L))).thenReturn(Optional.of(helpRequest));
+
+                // act
+                MvcResult response = mockMvc.perform(get("/api/helprequest?id=7"))
+                                .andExpect(status().isOk()).andReturn();
+
+                // assert
+
+                verify(helpRequestRepository, times(1)).findById(eq(7L));
+                String expectedJson = mapper.writeValueAsString(helpRequest);
+                String responseString = response.getResponse().getContentAsString();
+                assertEquals(expectedJson, responseString);
+        }
+
         @WithMockUser(roles = { "USER" })
         @Test
         public void test_that_logged_in_user_can_get_by_id_when_the_id_does_not_exist() throws Exception {
@@ -206,6 +237,37 @@ public class HelpRequestControllerTests extends ControllerTestCase {
 
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
+        public void an_admin_user_can_post_a_new_ucsbdate1() throws Exception {
+                // arrange
+
+                LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
+
+                HelpRequest helpRequest1 = HelpRequest.builder()
+                                .requesterEmail("abaaba@ucsb.edu")
+                                .teamId("5pm4")
+                                .tableOrBreakoutRoom("table7")
+                                .requestTime(ldt1)
+                                .explanation("hahah")
+                                .solved(true)
+                                .build();
+
+                when(helpRequestRepository.save(eq(helpRequest1))).thenReturn(helpRequest1);
+
+                // act
+                MvcResult response = mockMvc.perform(
+                                post("/api/helprequest/post?requesterEmail=abaaba@ucsb.edu&teamId=5pm4&tableOrBreakoutRoom=table7&requestTime=2022-01-03T00:00:00&explanation=hahah&solved=true")
+                                                .with(csrf()))
+                                .andExpect(status().isOk()).andReturn();
+
+                // assert
+                verify(helpRequestRepository, times(1)).save(helpRequest1);
+                String expectedJson = mapper.writeValueAsString(helpRequest1);
+                String responseString = response.getResponse().getContentAsString();
+                assertEquals(expectedJson, responseString);
+        }
+
+        @WithMockUser(roles = { "ADMIN", "USER" })
+        @Test
         public void admin_can_delete_a_date() throws Exception {
                 // arrange
 
@@ -271,6 +333,52 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                                 .requestTime(ldt1)
                                 .explanation("hahah")
                                 .solved(false)
+                                .build();
+
+                HelpRequest helpRequestEdited = HelpRequest.builder()
+                                .requesterEmail("abccba@ucsb.edu")
+                                .teamId("7pm2")
+                                .tableOrBreakoutRoom("table3")
+                                .requestTime(ldt2)
+                                .explanation("hahadfdf")
+                                .solved(true)
+                                .build();
+
+                String requestBody = mapper.writeValueAsString(helpRequestEdited);
+
+                when(helpRequestRepository.findById(eq(67L))).thenReturn(Optional.of(helpRequestOrig));
+
+                // act
+                MvcResult response = mockMvc.perform(
+                                put("/api/helprequest?id=67")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .characterEncoding("utf-8")
+                                                .content(requestBody)
+                                                .with(csrf()))
+                                .andExpect(status().isOk()).andReturn();
+
+                // assert
+                verify(helpRequestRepository, times(1)).findById(67L);
+                verify(helpRequestRepository, times(1)).save(helpRequestEdited); // should be saved with correct user
+                String responseString = response.getResponse().getContentAsString();
+                assertEquals(requestBody, responseString);
+        }
+
+        @WithMockUser(roles = { "ADMIN", "USER" })
+        @Test
+        public void admin_can_edit_an_existing_ucsbdate1() throws Exception {
+                // arrange
+
+                LocalDateTime ldt1 = LocalDateTime.parse("2022-01-03T00:00:00");
+                LocalDateTime ldt2 = LocalDateTime.parse("2023-01-03T00:00:00");
+
+                HelpRequest helpRequestOrig = HelpRequest.builder()
+                                .requesterEmail("abaaba@ucsb.edu")
+                                .teamId("5pm4")
+                                .tableOrBreakoutRoom("table7")
+                                .requestTime(ldt1)
+                                .explanation("hahah")
+                                .solved(true)
                                 .build();
 
                 HelpRequest helpRequestEdited = HelpRequest.builder()
