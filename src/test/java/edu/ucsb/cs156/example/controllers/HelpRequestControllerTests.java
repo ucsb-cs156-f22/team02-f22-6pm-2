@@ -108,7 +108,6 @@ public class HelpRequestControllerTests extends ControllerTestCase {
                 String responseString = response.getResponse().getContentAsString();
                 assertEquals(expectedJson, responseString);
         }
-
         // // Tests with mocks for database actions
         @WithMockUser(roles = { "USER" })
         @Test

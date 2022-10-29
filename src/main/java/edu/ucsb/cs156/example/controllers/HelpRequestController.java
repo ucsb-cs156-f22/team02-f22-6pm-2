@@ -95,7 +95,6 @@ public class HelpRequestController extends ApiController {
         helpRequestRepository.delete(helpRequest);
         return genericMessage("HelpRequest with id %s deleted".formatted(id));
     }
-
     @ApiOperation(value = "Update a single request")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("")
@@ -117,4 +116,5 @@ public class HelpRequestController extends ApiController {
 
         return helpRequest;
     }
+
 }
